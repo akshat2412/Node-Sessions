@@ -29,9 +29,45 @@ const Task = db.define('task', {
 
 
 /* we run queries like **select 1; ** to see if the connection is established or not */
-async function task () {
-    await db.sync()
+async function init () {
     await db.authenticate() // To check if connection is correctly established.
+    await db.sync() // Update tables, but the schema changes are not applied, or use alter = true.
+    // await task.sync()  to sync specific tables
+
+    // await db.sync({force: true}) /* Drops table and creates new one. Never use it in Prodn. */
+
+    // await db.sync({alter: true}) 
+    /* Creates backup, and creates a new table and tries to bring
+       backed up data into new table */
+       
 }
 
-task()
+async function writeTasks () {
+    const task =await Task.create({
+        name: 'this is a task',
+        priority: 3
+    })
+
+    console.log(task)
+    console.log('=======================')
+    console.log('=======================')
+    console.log('=======================')
+
+    task.priority = 5
+    console.log(task)
+    console.log('=======================')
+    console.log('=======================')
+    console.log('=======================')
+
+    task.save()
+    console.log(task)
+}
+
+// writeTasks()  /* this will be called even while init is running, so dont do this
+
+async function doAll () {
+    await init()
+    await writeTasks()
+}
+
+doAll()
